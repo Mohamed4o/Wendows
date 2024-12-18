@@ -1,27 +1,35 @@
-
 name: Windows VM with noVNC
+
 on:
- workflow_dispatch:
+  workflow_dispatch:
+
 jobs:
- build:
- runs-on: ubuntu-latest
- steps:
- - name: Setup Windows VM
- run: |
- sudo apt update
- sudo apt install -y qemu qemu-kvm wget
- wget -O win10.iso
-"https://software-download.microsoft.com/DB/Win10_English_x64.iso"
- wget -O virtio.iso
-"https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-w
-in.iso"
- qemu-system-x86_64 -enable-kvm -m 4G -cpu host 
- -smp 2 -vga qxl -cdrom win10.iso -drive
-file=windows.img,format=qcow2 -drive file=virtio.iso,media=cdrom 
--net nic,model=virtio -net user,hostfwd=tcp::3389-:3389
- - name: Install noVNC
- run: |
- sudo apt install -y novnc websockify
- websockify --web=/usr/share/novnc/ 6080 localhost:5900 &
- - name: Display Access Link
- run: echo "Access your Windows VM via http://localhost:6080"
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Windows VM
+        run: |
+          sudo apt update
+          sudo apt install -y qemu qemu-kvm wget
+          wget -O win10.iso "https://software-download.microsoft.com/DB/Win10_English_x64.iso"
+          wget -O virtio.iso "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso"
+          qemu-system-x86_64 \
+            -enable-kvm \
+            -m 4G \
+            -cpu host \
+            -smp 2 \
+            -vga qxl \
+            -cdrom win10.iso \
+            -drive file=windows.img,format=qcow2 \
+            -drive file=virtio.iso,media=cdrom \
+            -net nic,model=virtio \
+            -net user,hostfwd=tcp::3389-:3389
+
+      - name: Install noVNC
+        run: |
+          sudo apt install -y novnc websockify
+          websockify --web=/usr/share/novnc/ 6080 localhost:5900 &
+
+      - name: Display Access Link
+        run: |
+          echo "Access your Windows VM via http://localhost:6080"
